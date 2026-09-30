@@ -1,4 +1,4 @@
-from customer_query import detect_intent
+﻿from customer_query import detect_intent
 from tracking_id_extractor import extract_tracking_id
 from tracking_assistant import track_shipment
 
@@ -9,7 +9,9 @@ def generate_response(query):
 
     intent = detect_intent(query)
 
+    # GREETING
     if intent == "greeting":
+
         shipment_info = {
             "tracking_id": "N/A",
             "status": "N/A",
@@ -20,12 +22,14 @@ def generate_response(query):
 
         return generate_ai_response(
             shipment_info,
-            query
+            query,
+            response_type="greeting"
         )
 
-    tracking_id = extract_tracking_id(query)
-
+    # TRACKING STATUS / DELIVERY ETA
     if intent in ["tracking_status", "delivery_eta"]:
+
+        tracking_id = extract_tracking_id(query)
 
         if tracking_id is None:
             return (
@@ -43,10 +47,14 @@ def generate_response(query):
 
         return generate_ai_response(
             shipment,
-            query
+            query,
+            response_type=intent
         )
 
+    # ORDER CANCELLATION
     if intent == "order_cancellation":
+
+        tracking_id = extract_tracking_id(query)
 
         shipment_info = {
             "tracking_id": tracking_id or "N/A",
@@ -58,18 +66,25 @@ def generate_response(query):
 
         return generate_ai_response(
             shipment_info,
-            query
+            query,
+            response_type="cancellation"
         )
 
+    # UNKNOWN QUERY
+    tracking_id = extract_tracking_id(query)
+
+    shipment_info = {
+        "tracking_id": tracking_id or "N/A",
+        "status": "N/A",
+        "city": "N/A",
+        "courier_id": "N/A",
+        "predicted_eta": "N/A"
+    }
+
     return generate_ai_response(
-        {
-            "tracking_id": tracking_id or "N/A",
-            "status": "N/A",
-            "city": "N/A",
-            "courier_id": "N/A",
-            "predicted_eta": "N/A"
-        },
-        query
+        shipment_info,
+        query,
+        response_type="unknown"
     )
 
 
@@ -80,7 +95,9 @@ if __name__ == "__main__":
         "Where is my order 3322376?",
         "What is the status of my shipment 3322376?",
         "When will my order 3322376 arrive?",
-        "I want to cancel my order"
+        "I want to cancel my order",
+        "Where is my order?",
+        "What is my tracking number?"
     ]
 
     print("\n===== AI COURIER CHATBOT WITH GENERATIVE AI =====")
