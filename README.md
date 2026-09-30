@@ -102,3 +102,4 @@ courier\_tracking\_assistant/
 
 └── README.mds
 
+GitHub Essentials practice
